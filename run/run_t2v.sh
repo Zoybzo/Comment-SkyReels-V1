@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export SkyReelsModel="${MHOME}/Models/SkyReels-V1-Hunyuan-T2V"
+export SkyReelsModel="${MHOME}/Models/SkyReels-V1-T2V"
 python3 video_generate.py \
     --model_id ${SkyReelsModel} \
     --task_type t2v \

@@ -5,7 +5,7 @@
 # high_cpu_memory: Enable pinned memory to reduce the overhead of model offloading.
 # parameters_level: Further reduce GPU VRAM usage.
 # task_type:The task type is designated to support both t2v and i2v. For the execution of an i2v task, it is necessary to input --image.
-export SkyReelsModel="Skywork/SkyReels-V1-Hunyuan-T2V"
+export SkyReelsModel="${MHOME}/Models/SkyReels-V1-T2V"
 python3 video_generate.py \
     --model_id ${SkyReelsModel} \
     --task_type t2v \

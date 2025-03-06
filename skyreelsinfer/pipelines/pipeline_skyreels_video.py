@@ -309,15 +309,15 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
             device=device,
             max_sequence_length=max_sequence_length,
         )
-        loguru_logger.log("MODEL DEBUG", f"After encoding prompt.")
-        loguru_logger.log("MODEL DEBUG",
+        loguru_logger.log("MODEL_DEBUG", f"After encoding prompt.")
+        loguru_logger.log("MODEL_DEBUG",
                           f"prompt_embeds: {prompt_embeds.shape}")
-        loguru_logger.log("MODEL DEBUG",
+        loguru_logger.log("MODEL_DEBUG",
                           f"negative_prompt_embeds: "
                           f"{negative_prompt_embeds.shape}")
-        loguru_logger.log("MODEL DEBUG",
+        loguru_logger.log("MODEL_DEBUG",
                           f"pooled_prompt_embeds: {pooled_prompt_embeds.shape}")
-        loguru_logger.log("MODEL DEBUG",
+        loguru_logger.log("MODEL_DEBUG",
                           f"negative_pooled_prompt_embeds: "
                           f"{negative_pooled_prompt_embeds.shape}")
 
@@ -366,13 +366,13 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
                                                     width=width).to(
                 device, dtype=prompt_embeds.dtype
             )
-            loguru_logger.log("MODEL DEBUG",
+            loguru_logger.log("MODEL_DEBUG",
                               f"image shape: {np.array(image).shape}")
         # VAE 处理 Frames
         loguru_logger.info("***** VAE Frames *****")
         num_latent_frames = ((num_frames - 1) //
                              self.vae_scale_factor_temporal + 1)
-        loguru_logger.log("MODEL DEBUG",
+        loguru_logger.log("MODEL_DEBUG",
                           f"num_frames -> num_latent_frames: "
                           f"{num_frames} -> {num_latent_frames}")
 
@@ -389,7 +389,7 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
             generator,
             latents,
         )
-        loguru_logger.log("MODEL DEBUG",
+        loguru_logger.log("MODEL_DEBUG",
                           f"latents shape: {latents.shape}")
         # I2V: 使用 VAE 处理的图像作为 Latents
         # add image latents
@@ -400,7 +400,7 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
                 num_channels_latents, num_latent_frames
             )
             image_latents = image_latents.to(transformer_dtype)
-            loguru_logger.log("MODEL DEBUG",
+            loguru_logger.log("MODEL_DEBUG",
                               f"image_latents shape: {image_latents.shape}")
         else:
             image_latents = None
@@ -448,7 +448,7 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
                     )
                     latent_model_input = torch.cat(
                         [latent_model_input, latent_image_input], dim=1)
-                    loguru_logger.log("MODEL DEBUG",
+                    loguru_logger.log("MODEL_DEBUG",
                                       f"latent_model input shape: "
                                       f"{latent_model_input.shape}")
                 timestep = t.repeat(latent_model_input.shape[0]).to(

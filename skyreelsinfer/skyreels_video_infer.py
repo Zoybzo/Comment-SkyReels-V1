@@ -36,7 +36,9 @@ class SkyReelsVideoSingleGpuInfer:
     def _load_model(
             self,
             model_id: str,
-            base_model_id: str = "hunyuanvideo-community/HunyuanVideo",
+            # base_model_id: str = "hunyuanvideo-community/HunyuanVideo",
+            # Change the base model path
+            base_model_id: str = f"${MHOME}/Models/HunyuanVideo",
             quant_model: bool = True,
             gpu_device: str = "cuda:0",
     ) -> SkyreelsVideoPipeline:
@@ -175,8 +177,8 @@ class SkyReelsVideoSingleGpuInfer:
                 del kwargs["seed"]
             start_time = time.time()
             assert (
-                               self.task_type == TaskType.I2V and "image" in
-                               kwargs) or self.task_type == TaskType.T2V
+                           self.task_type == TaskType.I2V and "image" in
+                           kwargs) or self.task_type == TaskType.T2V
             out = self.pipe(**kwargs).frames[0]
             logger.info(
                 f"rank:{dist.get_rank()} inference time: "

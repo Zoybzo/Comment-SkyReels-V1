@@ -5,6 +5,7 @@ import time
 from datetime import timedelta
 from typing import Any
 from typing import Dict
+from typing import Optional
 
 import torch
 import torch.distributed as dist

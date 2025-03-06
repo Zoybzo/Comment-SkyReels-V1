@@ -5,6 +5,7 @@
 # high_cpu_memory: Enable pinned memory to reduce the overhead of model offloading.
 # gpu_num: Number of GPUs used.
 export SkyReelsModel="${MHOME}/Models/SkyReels-V1-T2V"
+export HunyuanVideo="${MHOME}/Models/HunyuanVideo"
 python3 video_generate.py \
     --model_id ${SkyReelsModel} \
     --guidance_scale 6.0 \
@@ -16,4 +17,5 @@ python3 video_generate.py \
     --quant \
     --offload \
     --high_cpu_memory \
-    --gpu_num $GPU_NUM
+    --gpu_num $GPU_NUM \
+    --base_model_id ${HunyuanVideo}

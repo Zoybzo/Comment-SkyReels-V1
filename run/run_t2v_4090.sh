@@ -6,6 +6,7 @@
 # parameters_level: Further reduce GPU VRAM usage.
 # task_type:The task type is designated to support both t2v and i2v. For the execution of an i2v task, it is necessary to input --image.
 export SkyReelsModel="${MHOME}/Models/SkyReels-V1-T2V"
+export HunyuanVideo="${MHOME}/Models/HunyuanVideo"
 python3 video_generate.py \
     --model_id ${SkyReelsModel} \
     --task_type t2v \
@@ -18,4 +19,5 @@ python3 video_generate.py \
     --quant \
     --offload \
     --high_cpu_memory \
-    --parameters_level
+    --parameters_level \
+    --base_model_id ${HunyuanVideo}

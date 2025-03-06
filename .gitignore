@@ -15,3 +15,4 @@ scripts/.gradio/*
 *.csv
 *.jsonl
 *.mp4
+.idea/

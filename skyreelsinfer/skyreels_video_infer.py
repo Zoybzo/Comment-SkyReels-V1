@@ -36,9 +36,9 @@ class SkyReelsVideoSingleGpuInfer:
     def _load_model(
             self,
             model_id: str,
-            # base_model_id: str = "hunyuanvideo-community/HunyuanVideo",
+            base_model_id: str = "hunyuanvideo-community/HunyuanVideo",
             # Change the base model path
-            base_model_id: str = f"${MHOME}/Models/HunyuanVideo",
+            # base_model_id: str = f"${MHOME}/Models/HunyuanVideo",
             quant_model: bool = True,
             gpu_device: str = "cuda:0",
     ) -> SkyreelsVideoPipeline:
@@ -78,6 +78,7 @@ class SkyReelsVideoSingleGpuInfer:
             self,
             task_type: TaskType,
             model_id: str,
+            base_model_id: Optional[str] = None,
             quant_model: bool = True,
             local_rank: int = 0,
             world_size: int = 1,
@@ -101,9 +102,17 @@ class SkyReelsVideoSingleGpuInfer:
         torch.backends.cuda.enable_cudnn_sdp(False)
         gpu_device = f"cuda:{dist.get_rank()}"
 
-        self.pipe: SkyreelsVideoPipeline = self._load_model(
-            model_id=model_id, quant_model=quant_model, gpu_device=gpu_device
-        )
+        if base_model_id is not None:
+            self.pipe: SkyreelsVideoPipeline = self._load_model(
+                model_id=model_id, quant_model=quant_model,
+                gpu_device=gpu_device,
+                base_model_id=base_model_id
+            )
+        else:
+            self.pipe: SkyreelsVideoPipeline = self._load_model(
+                model_id=model_id, quant_model=quant_model,
+                gpu_device=gpu_device,
+            )
 
         from para_attn.context_parallel import init_context_parallel_mesh
         from para_attn.context_parallel.diffusers_adapters import \
@@ -198,6 +207,7 @@ def single_gpu_run(
         is_offload: bool = True,
         offload_config: OffloadConfig = OffloadConfig(),
         enable_cfg_parallel: bool = True,
+        base_model_id: Optional[str] = None,
 ):
     pipe = SkyReelsVideoSingleGpuInfer(
         task_type=task_type,
@@ -208,6 +218,7 @@ def single_gpu_run(
         is_offload=is_offload,
         offload_config=offload_config,
         enable_cfg_parallel=enable_cfg_parallel,
+        base_model_id=base_model_id,
     )
     pipe.damon_inference(request_queue, response_queue)
 
@@ -222,6 +233,7 @@ class SkyReelsVideoInfer:
             is_offload: bool = True,
             offload_config: OffloadConfig = OffloadConfig(),
             enable_cfg_parallel: bool = True,
+            base_model_id: Optional[str] = None,
     ):
         self.world_size = world_size
         smp = mp.get_context("spawn")
@@ -231,7 +243,7 @@ class SkyReelsVideoInfer:
         spawn_thread = threading.Thread(
             target=self.lauch_single_gpu_infer,
             args=(task_type, model_id, quant_model, world_size, is_offload,
-                  offload_config, enable_cfg_parallel),
+                  offload_config, enable_cfg_parallel, base_model_id),
             daemon=True,
         )
         spawn_thread.start()
@@ -252,6 +264,7 @@ class SkyReelsVideoInfer:
             is_offload: bool = True,
             offload_config: OffloadConfig = OffloadConfig(),
             enable_cfg_parallel: bool = True,
+            base_model_id: Optional[str] = None,
     ):
         mp.spawn(
             single_gpu_run,
@@ -268,6 +281,7 @@ class SkyReelsVideoInfer:
                 is_offload,
                 offload_config,
                 enable_cfg_parallel,
+                base_model_id,
             ),
         )
         logger.info(f"finish lanch multi gpu infer, world_size:{world_size}")

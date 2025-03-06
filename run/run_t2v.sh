@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export SkyReelsModel="${MHOME}/Models/SkyReels-V1-T2V"
+export HunyuanVideo="${MHOME}/Models/HunyuanVideo"
 python3 video_generate.py \
     --model_id ${SkyReelsModel} \
     --task_type t2v \
@@ -9,4 +10,5 @@ python3 video_generate.py \
     --width 960 \
     --num_frames 97 \
     --prompt "FPS-24, A cat wearing sunglasses and working as a lifeguard at a pool" \
-    --embedded_guidance_scale 1.0
+    --embedded_guidance_scale 1.0 \
+    --base_model_id ${HunyuanVideo}

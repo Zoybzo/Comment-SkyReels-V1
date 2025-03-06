@@ -50,6 +50,7 @@ if __name__ == "__main__":
     parser.add_argument("--parameters_level", action="store_true")
     parser.add_argument("--compiler_transformer", action="store_true")
     parser.add_argument("--sequence_batch", action="store_true")
+    parser.add_argument("--base_model_id", type=str, default="")
 
     args = parser.parse_args()
 
@@ -77,6 +78,7 @@ if __name__ == "__main__":
         ),
         enable_cfg_parallel=args.guidance_scale > 1.0 and not
         args.sequence_batch,
+        base_model_id=args.base_model_id,
     )
     print("finish pipeline init")
 

@@ -164,13 +164,23 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
         将输入图片转换成 Image Latents
         """
         initial_image = initial_image.unsqueeze(2)  # [1, 1, W, H, C]
+        loguru_logger.log("MODEL_DEBUG",
+                          f"Before 3D VAE: "
+                          f"image.shape: {initial_image.shape}")
         # 这里的 VAE 是 3D VAE
         image_latents = self.vae.encode(initial_image).latent_dist.sample()
+        loguru_logger.log("MODEL_DEBUG",
+                          f"After 3D VAE: "
+                          f"image_latents.shape: {image_latents.shape}")
         # 分布调整
+        loguru_logger.log("MODEL_DEBUG",
+                          f"Before shift/scale: "
+                          f"image_latents.MIN: {image_latents.MIN.value},"
+                          f"image_latents.MAX: {image_latents.MAX.value}")
         if hasattr(self.vae.config,
                    "shift_factor") and self.vae.config.shift_factor:
             # shift + scale
-            # TODO：这里为什么是减去shift，而不是加上shift
+            # TODO：这里为什么是减去而不是加上shift
             image_latents = ((
                                      image_latents -
                                      self.vae.config.shift_factor) *
@@ -178,6 +188,10 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
         else:
             # scale only
             image_latents = image_latents * self.vae.config.scaling_factor
+        loguru_logger.log("MODEL_DEBUG",
+                          f"After shift/scale: "
+                          f"image_latents.MIN: {image_latents.MIN.value},"
+                          f"image_latents.MAX: {image_latents.MAX.value}")
         padding_shape = (
             batch_size,
             num_channels_latents,
@@ -185,9 +199,14 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
             int(height) // self.vae_scale_factor_spatial,
             int(width) // self.vae_scale_factor_spatial,
         )
-        # TODO: padding 的作用是什么？
+        loguru_logger.log("MODEL_DEBUG",
+                          f"Padding shape: {padding_shape}")
+        # padding 的的作用: 将原始图片作为视频的第一帧，在之后扩充全0帧
         latent_padding = torch.zeros(padding_shape, device=device, dtype=dtype)
         image_latents = torch.cat([image_latents, latent_padding], dim=2)
+        loguru_logger.log("MODEL_DEBUG",
+                          f"After padding:"
+                          f"image_latents.shape: {image_latents.shape}")
         return image_latents
 
     @torch.no_grad()
@@ -235,7 +254,10 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
 
         # crop and resize
         if image is not None and isinstance(image, Image.Image):
+            loguru_logger.info("***** Resize and Crop Image *****")
             image = resizecrop(image, height, width)
+            loguru_logger.log("MODEL_DEBUG",
+                              f"image shape: {np.array(image).shape}")
 
         if isinstance(callback_on_step_end,
                       (PipelineCallback, MultiPipelineCallbacks)):
@@ -310,13 +332,17 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
             max_sequence_length=max_sequence_length,
         )
         loguru_logger.log("MODEL_DEBUG", f"After encoding prompt.")
+        # [1,256,4096]
         loguru_logger.log("MODEL_DEBUG",
                           f"prompt_embeds: {prompt_embeds.shape}")
+        # [1,256,4096]
         loguru_logger.log("MODEL_DEBUG",
                           f"negative_prompt_embeds: "
                           f"{negative_prompt_embeds.shape}")
+        # [1, 768]
         loguru_logger.log("MODEL_DEBUG",
                           f"pooled_prompt_embeds: {pooled_prompt_embeds.shape}")
+        # [1, 768]
         loguru_logger.log("MODEL_DEBUG",
                           f"negative_pooled_prompt_embeds: "
                           f"{negative_pooled_prompt_embeds.shape}")
@@ -357,6 +383,9 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
 
         # 5. Prepare latent variables
         num_channels_latents = self.transformer.config.in_channels
+        # 16
+        loguru_logger.log("MODEL_DEBUG",
+                          f"num_channels_latents: {num_channels_latents}")
         if image is not None:  # I2V 的情况
             loguru_logger.info("***** Prepare image For I2V *****")
             # TODO: 为什么 I2V 的 channels 是 T2V 的 C 的一半？
@@ -370,6 +399,8 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
                               f"image shape: {np.array(image).shape}")
         # VAE 处理 Frames
         loguru_logger.info("***** VAE Frames *****")
+        # Frames 97 -> 25
+        # (97-1)//4 + 1 = 25
         num_latent_frames = ((num_frames - 1) //
                              self.vae_scale_factor_temporal + 1)
         loguru_logger.log("MODEL_DEBUG",
@@ -389,6 +420,9 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
             generator,
             latents,
         )
+        # [1, 16, 25, 68, 120]
+        # W: 544 // 8 -> 68
+        # H: 960 // 8 -> 120
         loguru_logger.log("MODEL_DEBUG",
                           f"latents shape: {latents.shape}")
         # I2V: 使用 VAE 处理的图像作为 Latents

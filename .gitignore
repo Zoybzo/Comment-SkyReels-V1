@@ -4,8 +4,8 @@ checkpoint
 results/*
 .DS_Store
 results/*
-*.png
-*.jpg
+#*.png
+#*.jpg
 *.log*
 *.json
 scripts/transformer/*
@@ -14,5 +14,5 @@ scripts/.gradio/*
 *.pkl
 *.csv
 *.jsonl
-*.mp4
+#*.mp4
 .idea/

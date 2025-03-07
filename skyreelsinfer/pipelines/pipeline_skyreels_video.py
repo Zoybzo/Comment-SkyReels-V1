@@ -175,8 +175,8 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
         # 分布调整
         loguru_logger.log("MODEL_DEBUG",
                           f"Before shift/scale: "
-                          f"image_latents.MIN: {image_latents.MIN.value},"
-                          f"image_latents.MAX: {image_latents.MAX.value}")
+                          f"image_latents.MIN: {torch.min(image_latents)},"
+                          f"image_latents.MAX: {torch.max(image_latents)},")
         if hasattr(self.vae.config,
                    "shift_factor") and self.vae.config.shift_factor:
             # shift + scale
@@ -190,8 +190,8 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
             image_latents = image_latents * self.vae.config.scaling_factor
         loguru_logger.log("MODEL_DEBUG",
                           f"After shift/scale: "
-                          f"image_latents.MIN: {image_latents.MIN.value},"
-                          f"image_latents.MAX: {image_latents.MAX.value}")
+                          f"image_latents.MIN: {torch.min(image_latents)},"
+                          f"image_latents.MAX: {torch.max(image_latents)},")
         padding_shape = (
             batch_size,
             num_channels_latents,

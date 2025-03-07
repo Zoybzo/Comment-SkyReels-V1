@@ -255,8 +255,12 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
         # crop and resize
         if image is not None and isinstance(image, Image.Image):
             loguru_logger.info("***** Resize and Crop Image *****")
+            loguru_logger.log("MODEL_DEBUG",
+                              f"Before cropping: "
+                              f"image shape: {np.array(image).shape}")
             image = resizecrop(image, height, width)
             loguru_logger.log("MODEL_DEBUG",
+                              f"After cropping: "
                               f"image shape: {np.array(image).shape}")
 
         if isinstance(callback_on_step_end,
@@ -396,7 +400,7 @@ class SkyreelsVideoPipeline(HunyuanVideoPipeline):
                 device, dtype=prompt_embeds.dtype
             )
             loguru_logger.log("MODEL_DEBUG",
-                              f"image shape: {np.array(image).shape}")
+                              f"image shape: {image.shape}")
         # VAE 处理 Frames
         loguru_logger.info("***** VAE Frames *****")
         # Frames 97 -> 25

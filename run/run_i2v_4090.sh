@@ -26,16 +26,17 @@ else
 fi
 # 设置 GPU_NUM 环境变量
 export GPU_NUM=${GPU_NUM}
-export SkyReelsModel="${MHOME}/Models/SkyReels-V1-T2V"
+export SkyReelsModel="${MHOME}/Models/SkyReels-V1-I2V"
 export HunyuanVideo="${MHOME}/Models/HunyuanVideo"
 python3 video_generate.py \
     --model_id ${SkyReelsModel} \
-    --task_type t2v \
+    --task_type i2v \
     --guidance_scale 6.0 \
     --height 544 \
     --width 960 \
     --num_frames 49 \
     --prompt "FPS-24, A cat wearing sunglasses and working as a lifeguard at a pool" \
+    --image "./assets/images/11.png" \
     --embedded_guidance_scale 1.0 \
     --quant \
     --offload \

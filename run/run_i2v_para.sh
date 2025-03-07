@@ -3,8 +3,8 @@
 # quant: Enable FP8 weight-only quantization
 # offload: Enable offload model
 # high_cpu_memory: Enable pinned memory to reduce the overhead of model offloading.
-# parameters_level: Further reduce GPU VRAM usage.
-# task_type:The task type is designated to support both t2v and i2v. For the execution of an i2v task, it is necessary to input --image.
+# gpu_num: Number of GPUs used.
+
 # 检查是否传入了 CUDA 设备号
 if [ -z "$1" ]; then
   # 如果没有传入，默认使用设备号 0
@@ -24,21 +24,23 @@ else
   # 如果设备号中没有逗号，说明是单个设备
   GPU_NUM=1
 fi
+
 # 设置 GPU_NUM 环境变量
 export GPU_NUM=${GPU_NUM}
-export SkyReelsModel="${MHOME}/Models/SkyReels-V1-T2V"
+
+export SkyReelsModel="${MHOME}/Models/SkyReels-V1-I2V"
 export HunyuanVideo="${MHOME}/Models/HunyuanVideo"
 python3 video_generate.py \
     --model_id ${SkyReelsModel} \
-    --task_type t2v \
     --guidance_scale 6.0 \
     --height 544 \
     --width 960 \
     --num_frames 49 \
     --prompt "FPS-24, A cat wearing sunglasses and working as a lifeguard at a pool" \
+    --image "./assets/images/11.png" \
     --embedded_guidance_scale 1.0 \
     --quant \
     --offload \
     --high_cpu_memory \
-    --parameters_level \
+    --gpu_num ${GPU_NUM} \
     --base_model_id ${HunyuanVideo}

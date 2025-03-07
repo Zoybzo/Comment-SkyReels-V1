@@ -35,7 +35,7 @@ python3 video_generate.py \
     --guidance_scale 6.0 \
     --height 544 \
     --width 960 \
-    --num_frames 97 \
+    --num_frames 49 \
     --prompt "FPS-24, A cat wearing sunglasses and working as a lifeguard at a pool" \
     --embedded_guidance_scale 1.0 \
     --quant \
